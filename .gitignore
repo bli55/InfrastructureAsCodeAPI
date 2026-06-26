@@ -1,0 +1,24 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.userprefs
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+
+# SOPS - never commit the plaintext secrets file
+secrets.yaml
+
+# Misc
+.DS_Store
+Thumbs.db

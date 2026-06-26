@@ -1,0 +1,9 @@
+# SOPS encrypts secrets.yaml using the KMS key created by Terraform.
+# After running `terraform apply`, replace KEY_ARN with the value from:
+#   terraform -chdir=infra/terraform output kms_key_arn
+#
+# To encrypt:   sops --encrypt secrets.yaml > secrets.enc.yaml
+# To decrypt:   sops --decrypt secrets.enc.yaml
+creation_rules:
+  - path_regex: secrets\.yaml$
+    kms: arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ARN
