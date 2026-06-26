@@ -28,6 +28,11 @@ variable "task_memory" {
   default     = 512
 }
 
+variable "allowed_cidr" {
+  description = "Your public IP in CIDR notation (e.g. 1.2.3.4/32) — only this IP can reach the API"
+  type        = string
+}
+
 variable "github_token" {
   description = "GitHub Personal Access Token with repo admin permissions — pass via TF_VAR_github_token env var, never commit"
   type        = string

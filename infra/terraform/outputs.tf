@@ -1,6 +1,6 @@
-output "alb_url" {
-  description = "Public URL of the Application Load Balancer"
-  value       = "http://${aws_lb.main.dns_name}"
+output "api_url_command" {
+  description = "Run this command to get your Fargate task's public IP after deploy"
+  value       = "aws ecs list-tasks --cluster ${aws_ecs_cluster.main.name} --query 'taskArns[0]' --output text | xargs -I{} aws ecs describe-tasks --cluster ${aws_ecs_cluster.main.name} --tasks {} --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text | xargs aws ec2 describe-network-interfaces --network-interface-ids --query 'NetworkInterfaces[0].Association.PublicIp' --output text"
 }
 
 output "ecr_repository_url" {
