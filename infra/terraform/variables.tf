@@ -27,3 +27,21 @@ variable "task_memory" {
   type        = number
   default     = 512
 }
+
+variable "github_token" {
+  description = "GitHub Personal Access Token with repo admin permissions — pass via TF_VAR_github_token env var, never commit"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_owner" {
+  description = "GitHub username or organisation that owns the repository"
+  type        = string
+  default     = "bli55"
+}
+
+variable "github_repository" {
+  description = "GitHub repository name"
+  type        = string
+  default     = "InfrastructureAsCodeAPI"
+}

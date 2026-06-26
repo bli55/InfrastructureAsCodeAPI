@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
 
   # Uncomment after running terraform apply once to create the S3 bucket.
@@ -17,6 +21,11 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+}
+
+provider "github" {
+  token = var.github_token
+  owner = var.github_owner
 }
 
 data "aws_caller_identity" "current" {}
