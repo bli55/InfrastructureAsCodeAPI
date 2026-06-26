@@ -11,7 +11,7 @@ obj/
 *.tfstate
 *.tfstate.backup
 *.tfvars
-.terraform.lock.hcl
+# .terraform.lock.hcl is intentionally committed to pin provider versions
 crash.log
 override.tf
 override.tf.json

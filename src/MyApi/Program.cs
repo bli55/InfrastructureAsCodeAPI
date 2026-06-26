@@ -1,35 +1,37 @@
 using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// AWS SDK automatically uses the ECS task IAM role credentials at runtime,
-// and local ~/.aws credentials in development
-builder.Services.AddSingleton<IAmazonSecretsManager>(new AmazonSecretsManagerClient());
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<ISecretsService, DevSecretsService>();
+}
+else
+{
+    // On ECS the task role provides credentials automatically.
+    // Region is set via AWS_DEFAULT_REGION in the task definition.
+    var region = Amazon.RegionEndpoint.GetBySystemName(
+        Environment.GetEnvironmentVariable("AWS_DEFAULT_REGION") ?? "us-east-1");
+    builder.Services.AddSingleton<IAmazonSecretsManager>(new AmazonSecretsManagerClient(region));
+    builder.Services.AddSingleton<ISecretsService, AwsSecretsService>();
+}
 
 var app = builder.Build();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
-app.MapGet("/secret-demo", async (IAmazonSecretsManager sm) =>
+app.MapGet("/secret-demo", async (ISecretsService secrets) =>
 {
-    var secretName = Environment.GetEnvironmentVariable("SECRET_NAME")
-        ?? throw new InvalidOperationException("SECRET_NAME environment variable not set");
+    var values = await secrets.GetSecretsAsync();
 
-    var response = await sm.GetSecretValueAsync(new GetSecretValueRequest
-    {
-        SecretId = secretName
-    });
-
-    var secrets = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString)!;
-
-    // Never return secret values — only demonstrate that retrieval worked
+    // Never return secret values — only show that retrieval worked and which keys exist
     return Results.Ok(new
     {
-        message = "Secrets retrieved successfully via IAM task role",
-        secretName,
-        availableKeys = secrets.Keys
+        message = app.Environment.IsDevelopment()
+            ? "Secrets loaded from local appsettings (Development)"
+            : "Secrets retrieved from AWS Secrets Manager (Production)",
+        environment = app.Environment.EnvironmentName,
+        availableKeys = values.Keys
     });
 });
 
